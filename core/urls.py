@@ -26,5 +26,23 @@ urlpatterns = [
     path('shop/', views.shop, name='shop'),
     path('shop_single/', views.shop_single, name='shop-single'),
 
-    path('admin/', views.admin_index, name='admin_index')
+    path('admin/', views.admin_dashboard, name='admin_dashboard'),
+
+    # Category URLs
+    path('admin/categories/', views.category_list, name='category_list'),
+    path('admin/categories/add/', views.category_add, name='category_add'),
+    path('admin/categories/edit/<int:pk>/', views.category_edit, name='category_edit'),
+    path('admin/categories/delete/<int:pk>/', views.category_delete, name='category_delete'),
+
+    # Product URLs
+    path('admin/products/', views.product_list, name='product_list'),
+    path('admin/products/add/', views.product_add, name='product_add'),
+    path('admin/products/edit/<int:pk>/', views.product_edit, name='product_edit'),
+    path('admin/products/delete/<int:pk>/', views.product_delete, name='product_delete'),
+
+    # Review URLs
+    path('admin/reviews/', views.review_list, name='review_list'),
+    path('admin/reviews/add/', views.review_add, name='review_add'),
+    path('admin/reviews/edit/<int:pk>/', views.review_edit, name='review_edit'),
+    path('admin/reviews/delete/<int:pk>/', views.review_delete, name='review_delete'),
 ]
