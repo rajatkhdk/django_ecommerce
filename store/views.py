@@ -4,7 +4,15 @@ from .models import Product, Category, Review
 from .forms import CategoryForm, ProductForm, ReviewForm
 # Create your views here.
 def home(request):
-    return render(request, 'store/index.html')
+    categories = Category.objects.all()[:3]
+
+    featured_products = Product.objects.filter(is_available=True)[:6]
+
+    context = {
+        'categories': categories,
+        'featured_products': featured_products,
+    }
+    return render(request, 'store/index.html', context)
 
 def contact(request):
     context = {
@@ -46,7 +54,7 @@ def category_list(request):
     return render(request, 'admin/category_list.html', {'categories': categories})
 
 def category_add(request):
-    form = CategoryForm(request.POST or None)
+    form = CategoryForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         form.save()
         return redirect('category_list')
@@ -54,10 +62,13 @@ def category_add(request):
 
 def category_edit(request, pk):
     category = get_object_or_404(Category, pk=pk)
-    form = CategoryForm(request.POST or None, instance=category)
+    form = CategoryForm(request.POST or None, request.FILES or None,instance=category)
+    print("Request:",request.FILES)
     if form.is_valid():
         form.save()
+        print("Request inside:",request.FILES)
         return redirect('category_list')
+    print("Request after:",request.FILES)
     return render(request, 'admin/category_form.html', {'form': form})
 
 def category_delete(request, pk):

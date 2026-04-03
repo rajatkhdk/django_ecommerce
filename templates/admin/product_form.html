@@ -1,4 +1,6 @@
-{% extends 'admin/base.html' %} {% load static %} {% block content %}
+{% extends 'admin/base.html' %} 
+{% load static %} 
+{% block content %}
 <div class="content-wrapper">
   <div class="content-header">
     <div class="container-fluid">
@@ -8,11 +10,65 @@
     </div>
   </div>
   <section class="content">
-    <form method="POST" enctype="multipart/form-data">
-      {% csrf_token %} {{ form.as_p }}
-      <button type="submit" class="btn btn-success">Save</button>
-      <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+    <div class="container-fluid">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Name -->
+        <div class="form-group">
+          <label for="{{ form.name.id_for_label }}">Name</label>
+          {{ form.name }}
+        </div>
+
+        <!-- Slug -->
+        <div class="form-group">
+          <label for="{{ form.slug.id_for_label }}">Slug</label>
+          {{ form.slug }}
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="{{ form.price.id_for_label }}">Price</label>
+          {{ form.price }}
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label for="{{ form.category.id_for_label }}">Category</label>
+          {{ form.category }}
+        </div>
+
+        <!-- Available Checkbox -->
+        <div class="form-check mb-3">
+          {{ form.is_available }}
+          <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+            Available
+          </label>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="{{ form.image.id_for_label }}">Image</label>
+          {{ form.image }}
+          {% if form.instance.image %}
+            <div class="mt-2">
+              <img src="{{ form.instance.image.url }}" alt="{{ form.instance.name }}" style="height: 100px; width: auto;">
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="{{ form.description.id_for_label }}">Description</label>
+          {{ form.description }}
+        </div>
+
+        <!-- Buttons -->
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancel</a>
+
+      </form>
+    </div>
   </section>
 </div>
 {% endblock %}

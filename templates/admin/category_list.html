@@ -1,56 +1,55 @@
-{% extends 'admin/base.html' %} 
-{% load static %} 
-
-{% block content %}
+{% extends 'admin/base.html' %} {% load static %} {% block content %}
 <div class="content-wrapper">
-<div class="content-header">
-<div class="container-fluid">
-  <h1 class="mb-4">Categories</h1>
-  <a href="{% url 'category_add' %}" class="btn btn-primary mb-3"
-    >Add Category</a
-  >
-  </div>
+  <div class="content-header">
+    <div class="container-fluid">
+      <h1 class="mb-4">Categories</h1>
+      <a href="{% url 'category_add' %}" class="btn btn-primary mb-3">
+        Add Category
+      </a>
+    </div>
   </div>
 
-<section class="content">
-<div class="container-fluid">
-  <table class="table table-bordered table-hover">
-    <thead class="thead-dark">
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Slug</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for category in categories %}
-      <tr>
-        <td>{{ category.id }}</td>
-        <td>{{ category.name }}</td>
-        <td>{{ category.slug }}</td>
-        <td>
-          <a
-            href="{% url 'category_edit' category.id %}"
-            class="btn btn-sm btn-info"
-            >Edit</a
-          >
-          <a
-            href="{% url 'category_delete' category.id %}"
-            class="btn btn-sm btn-danger"
-            onclick="return confirm('Are you sure?');"
-            >Delete</a
-          >
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="text-center">No categories found.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-</section>
+  <section class="content">
+    <div class="container-fluid">
+      <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for category in categories %}
+          <tr>
+            <td>{{ category.id }}</td>
+            <td>{{ category.name }}</td>
+            <td>{{ category.slug }}</td>
+            <td>
+              <a
+                href="{% url 'category_edit' category.id %}"
+                class="btn btn-sm btn-info"
+              >
+                Edit
+              </a>
+              <a
+                href="{% url 'category_delete' category.id %}"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Are you sure?');"
+              >
+                Delete
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">No categories found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
 {% endblock %}

@@ -1,0 +1,11 @@
+/*
+Custom Css
+*/
+
+.category-img {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}
