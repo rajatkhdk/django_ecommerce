@@ -1,10 +1,19 @@
-{% extends 'admin/base.html' %} {% load static %} {% block content %}
+{% extends 'admin/base.html' %} 
+{% load static %} 
+
+{% block content %}
+<div class="content-wrapper">
+<div class="content-header">
 <div class="container-fluid">
   <h1 class="mb-4">Categories</h1>
   <a href="{% url 'category_add' %}" class="btn btn-primary mb-3"
     >Add Category</a
   >
+  </div>
+  </div>
 
+<section class="content">
+<div class="container-fluid">
   <table class="table table-bordered table-hover">
     <thead class="thead-dark">
       <tr>
@@ -41,5 +50,7 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
+</section>
 </div>
 {% endblock %}
