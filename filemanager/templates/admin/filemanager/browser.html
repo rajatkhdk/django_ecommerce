@@ -1,0 +1,417 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}File Manager | Django Admin{% endblock %}
+
+{% block extrastyle %}
+<style>
+  /* ── Layout ── */
+  #fm-root {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #1a1a2e;
+    padding: 24px;
+    max-width: 1280px;
+  }
+
+  /* ── Breadcrumbs ── */
+  .fm-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .fm-breadcrumb a {
+    color: #417690;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .fm-breadcrumb a:hover { text-decoration: underline; }
+  .fm-breadcrumb .sep { color: #aaa; }
+  .fm-breadcrumb .current { color: #555; }
+
+  /* ── Toolbar ── */
+  .fm-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .fm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .fm-btn-primary   { background: #417690; color: #fff; }
+  .fm-btn-primary:hover { background: #2e5266; color: #fff; }
+  .fm-btn-success   { background: #28a745; color: #fff; }
+  .fm-btn-success:hover { background: #1e7e34; }
+  .fm-btn-danger    { background: #dc3545; color: #fff; }
+  .fm-btn-danger:hover  { background: #a71d2a; }
+  .fm-btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ccc; }
+  .fm-btn-secondary:hover { background: #e2e2e2; }
+
+  /* ── Grid ── */
+  .fm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .fm-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.1s;
+    position: relative;
+  }
+  .fm-item:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+  .fm-item .fm-icon { font-size: 40px; margin-bottom: 8px; display: block; }
+  .fm-item .fm-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+    line-height: 1.3;
+    max-height: 36px;
+    overflow: hidden;
+  }
+  .fm-item .fm-meta { font-size: 11px; color: #999; margin-top: 4px; }
+
+  .fm-item-actions {
+    position: absolute;
+    top: 6px; right: 6px;
+    display: none;
+    gap: 4px;
+  }
+  .fm-item:hover .fm-item-actions { display: flex; }
+  .fm-item-actions button {
+    background: rgba(220,53,69,0.85);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 6px;
+    cursor: pointer;
+  }
+  .fm-item-actions button:hover { background: #a71d2a; }
+
+  /* ── Section headings ── */
+  .fm-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+  }
+
+  .fm-empty {
+    color: #bbb;
+    font-size: 13px;
+    padding: 12px 0;
+    font-style: italic;
+  }
+
+  /* ── Upload drop zone ── */
+  #drop-zone {
+    border: 2px dashed #417690;
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    color: #417690;
+    background: #f7fbff;
+    transition: background 0.2s;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+  #drop-zone.dragover { background: #dceffe; border-color: #2e5266; }
+  #drop-zone p { margin: 8px 0 0; font-size: 13px; color: #666; }
+
+  /* ── Modal ── */
+  .fm-modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .fm-modal-backdrop.open { display: flex; }
+  .fm-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    width: 420px;
+    max-width: 95vw;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .fm-modal h3 { margin: 0 0 16px; font-size: 16px; }
+  .fm-modal input[type=text] {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid #ccc; border-radius: 6px;
+    font-size: 14px; box-sizing: border-box;
+  }
+  .fm-modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+  .fm-modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; font-size: 20px;
+    cursor: pointer; color: #888;
+  }
+
+  /* ── Preview modal ── */
+  #preview-modal img { max-width: 100%; max-height: 300px; border-radius: 8px; margin-bottom: 12px; }
+  #preview-modal .fm-preview-meta { font-size: 13px; color: #555; line-height: 1.8; }
+  #preview-modal .fm-preview-meta strong { color: #222; }
+
+  /* ── Messages ── */
+  .fm-messages { margin-bottom: 16px; }
+  .fm-message {
+    padding: 10px 14px; border-radius: 6px;
+    font-size: 13px; margin-bottom: 8px;
+  }
+  .fm-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .fm-message.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .fm-message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+  /* ── File type icons ── */
+  .icon-folder   { color: #f5a623; }
+  .icon-image    { color: #e74c3c; }
+  .icon-document { color: #3498db; }
+  .icon-video    { color: #9b59b6; }
+  .icon-audio    { color: #1abc9c; }
+  .icon-archive  { color: #e67e22; }
+  .icon-other    { color: #95a5a6; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="fm-root">
+  <h2 style="margin-bottom:6px;">📁 File Manager</h2>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="fm-messages">
+    {% for msg in messages %}
+    <div class="fm-message {{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Breadcrumbs -->
+  <div class="fm-breadcrumb">
+    <a href="{% url 'admin:filemanager_browse' %}">🏠 Root</a>
+    {% for name, fid in breadcrumbs %}
+      <span class="sep">›</span>
+      {% if not forloop.last %}
+        <a href="{% url 'admin:filemanager_browse_folder' fid %}">{{ name }}</a>
+      {% else %}
+        <span class="current">{{ name }}</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Toolbar -->
+  <div class="fm-toolbar">
+    <button class="fm-btn fm-btn-primary" onclick="openFolderModal()">＋ New Folder</button>
+    <button class="fm-btn fm-btn-success" onclick="document.getElementById('file-input').click()">⬆ Upload Files</button>
+    {% if current_folder %}
+    <form method="post" action="{% url 'admin:filemanager_delete_folder' current_folder.pk %}"
+          style="display:inline" onsubmit="return confirm('Delete this folder and ALL its contents?')">
+      {% csrf_token %}
+      <button type="submit" class="fm-btn fm-btn-danger">🗑 Delete This Folder</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <!-- Drop Zone -->
+  <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <div style="font-size:36px;">☁️</div>
+    <strong>Drag &amp; drop files here</strong>
+    <p>or click to browse your computer</p>
+  </div>
+
+  <!-- Hidden file input + hidden upload form -->
+  <form id="upload-form" method="post" action="{% url 'admin:filemanager_upload_file' %}" enctype="multipart/form-data" style="display:none">
+    {% csrf_token %}
+    <input type="hidden" name="folder_id" value="{{ current_folder.pk|default:'' }}">
+    <input type="file" id="file-input" name="files" multiple>
+  </form>
+
+  <!-- Folders -->
+  <div class="fm-section-title">Folders ({{ subfolders.count }})</div>
+  {% if subfolders %}
+  <div class="fm-grid">
+    {% for folder in subfolders %}
+    <div class="fm-item" ondblclick="window.location='{% url 'admin:filemanager_browse_folder' folder.pk %}'">
+      <span class="fm-icon icon-folder">📁</span>
+      <div class="fm-name">{{ folder.name }}</div>
+      <div class="fm-meta">{{ folder.subfolders.count }} folder{{ folder.subfolders.count|pluralize }} · {{ folder.files.count }} file{{ folder.files.count|pluralize }}</div>
+      <div class="fm-item-actions">
+        <form method="post" action="{% url 'admin:filemanager_delete_folder' folder.pk %}"
+              onsubmit="return confirm('Delete folder \'{{ folder.name }}\' and all its contents?')">
+          {% csrf_token %}
+          <button type="submit" title="Delete">✕</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fm-empty">No subfolders here. Create one with the button above.</p>
+  {% endif %}
+
+  <!-- Files -->
+  <div class="fm-section-title">Files ({{ files.count }})</div>
+  {% if files %}
+  <div class="fm-grid">
+    {% for file in files %}
+    <div class="fm-item" ondblclick="previewFile({{ file.pk }})">
+      <span class="fm-icon icon-{{ file.file_type }}">
+        {% if file.file_type == 'image' %}🖼{% elif file.file_type == 'document' %}📄{% elif file.file_type == 'video' %}🎬{% elif file.file_type == 'audio' %}🎵{% elif file.file_type == 'archive' %}🗜{% else %}📎{% endif %}
+      </span>
+      <div class="fm-name">{{ file.name }}</div>
+      <div class="fm-meta">{{ file.human_size }}</div>
+      <div class="fm-item-actions">
+        <form method="post" action="{% url 'admin:filemanager_delete_file' file.pk %}"
+              onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
+          {% csrf_token %}
+          <button type="submit" title="Delete">✕</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fm-empty">No files in this folder yet. Upload some above.</p>
+  {% endif %}
+</div>
+
+<!-- ── New Folder Modal ── -->
+<div class="fm-modal-backdrop" id="folder-modal">
+  <div class="fm-modal">
+    <button class="fm-modal-close" onclick="closeFolderModal()">×</button>
+    <h3>Create New Folder</h3>
+    <form method="post" action="{% url 'admin:filemanager_create_folder' %}">
+      {% csrf_token %}
+      <input type="hidden" name="parent_id" value="{{ current_folder.pk|default:'' }}">
+      <input type="text" name="name" id="folder-name-input" placeholder="Folder name..." autofocus required>
+      <div class="fm-modal-actions">
+        <button type="button" class="fm-btn fm-btn-secondary" onclick="closeFolderModal()">Cancel</button>
+        <button type="submit" class="fm-btn fm-btn-primary">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Preview Modal ── -->
+<div class="fm-modal-backdrop" id="preview-modal">
+  <div class="fm-modal" style="width:520px">
+    <button class="fm-modal-close" onclick="closePreview()">×</button>
+    <h3 id="preview-title">File Preview</h3>
+    <div id="preview-content">Loading...</div>
+    <div class="fm-modal-actions">
+      <a id="preview-download" href="#" class="fm-btn fm-btn-primary" target="_blank">⬇ Open / Download</a>
+      <button class="fm-btn fm-btn-secondary" onclick="closePreview()">Close</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+  // ── Folder modal ──
+  function openFolderModal() {
+    document.getElementById('folder-modal').classList.add('open');
+    document.getElementById('folder-name-input').focus();
+  }
+  function closeFolderModal() {
+    document.getElementById('folder-modal').classList.remove('open');
+  }
+  document.getElementById('folder-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeFolderModal();
+  });
+
+  // ── File input → auto-submit ──
+  document.getElementById('file-input').addEventListener('change', function() {
+    if (this.files.length > 0) document.getElementById('upload-form').submit();
+  });
+
+  // ── Drag & drop ──
+  const zone = document.getElementById('drop-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const dt = e.dataTransfer;
+    if (dt.files.length) {
+      const inp = document.getElementById('file-input');
+      inp.files = dt.files;
+      document.getElementById('upload-form').submit();
+    }
+  });
+
+  // ── File preview ──
+  function previewFile(fileId) {
+    document.getElementById('preview-modal').classList.add('open');
+    document.getElementById('preview-content').innerHTML = 'Loading...';
+    document.getElementById('preview-title').textContent = 'Loading...';
+
+    fetch(`/admin/filemanager/file/${fileId}/json/`)
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('preview-title').textContent = data.name;
+        document.getElementById('preview-download').href = data.url;
+
+        let html = '';
+        if (data.file_type === 'image') {
+          html += `<img src="${data.url}" alt="${data.name}" style="max-width:100%;max-height:300px;border-radius:8px;display:block;margin-bottom:12px">`;
+        }
+        html += `<div class="fm-preview-meta">
+          <div><strong>Type:</strong> ${data.file_type}</div>
+          <div><strong>Size:</strong> ${data.size}</div>
+          <div><strong>Folder:</strong> ${data.folder}</div>
+          <div><strong>Uploaded:</strong> ${data.uploaded_at}</div>
+        </div>`;
+        document.getElementById('preview-content').innerHTML = html;
+      })
+      .catch(() => {
+        document.getElementById('preview-content').innerHTML = '<span style="color:red">Failed to load file info.</span>';
+      });
+  }
+  function closePreview() {
+    document.getElementById('preview-modal').classList.remove('open');
+  }
+  document.getElementById('preview-modal').addEventListener('click', function(e) {
+    if (e.target === this) closePreview();
+  });
+
+  // ── Keyboard: Escape closes modals ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeFolderModal(); closePreview(); }
+  });
+</script>
+{% endblock %}
