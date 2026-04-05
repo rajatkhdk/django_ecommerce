@@ -1,5 +1,7 @@
 from django import forms
 from .models import Category, Product, Review
+from django.forms import ClearableFileInput
+from filer.fields.image import FilerImageField
 
 # Form for Category
 class CategoryForm(forms.ModelForm):
@@ -9,6 +11,7 @@ class CategoryForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Category Name'}),
             'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Slug'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 class ProductForm(forms.ModelForm):

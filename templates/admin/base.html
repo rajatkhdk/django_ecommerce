@@ -57,6 +57,32 @@
       rel="stylesheet"
       href="{% static 'admin/plugins/summernote/summernote-bs4.min.css' %}"
     />
+    <!-- Filer CSS -->
+    <link
+      rel="stylesheet"
+      href="{% static 'filer/css/maps/admin_filer.cms.icons.css.map' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'filer/css/maps/admin_filer.css.map' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'filer/css/maps/admin_filer.fa.icons.css.map' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'filer/css/admin_filer.cms.icons.css' %}"
+    />
+    <link rel="stylesheet" href="{% static 'filer/css/admin_filer.css' %}" />
+    <link
+      rel="stylesheet"
+      href="{% static 'filer/css/admin_filer.fa.icons.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'filer/css/admin_folderpermissions.css' %}"
+    />
   </head>
   <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -73,9 +99,8 @@
         />
       </div>
 
-        {% include 'admin/components/navbar.html' %}
-
-      {% include 'admin/components/sidebar.html' %}
+      {% include 'admin/components/navbar.html' %} 
+      {% include 'admin/components/sidebar.html' %} 
       {% block content %}
       <!-- Child pages will insert content here -->
       {% endblock %}
@@ -88,10 +113,29 @@
     <script src="{% static 'admin/plugins/jquery-ui/jquery-ui.min.js' %}"></script>
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
-      $.widget.bridge("uibutton", $.ui.button);
+      $.widget.bridge('uibutton', $.ui.button);
     </script>
     <!-- Bootstrap 4 -->
     <script src="{% static 'admin/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+     <!-- Filer JS -->
+    <script src="{% static 'filer/js/dist/filer-base.bundle.js' %}"></script>
+    <script src="{% static 'filer/js/dist/admin-file-widget.bundle.js' %}"></script>
+    <script src="{% static 'filer/js/widgets/admin-file-widget.js' %}"></script>
+    <script src="{% static 'filer/js/widgets/admin-folder-widget.js' %}"></script>
+    <script src="{% static 'filer/js/base.js' %}"></script>
+    <script src="{% static 'filer/js/addons/copy-move-files.js' %}"></script>
+    <script src="{% static 'filer/js/addons/dropdown-menu.js' %}"></script>
+    <script src="{% static 'filer/js/addons/dropzone.init.js' %}"></script>
+    <script src="{% static 'filer/js/addons/filer_popup_response.js' %}"></script>
+    <script src="{% static 'filer/js/addons/focal-point.js' %}"></script>
+    <script src="{% static 'filer/js/addons/popup_handling.js' %}"></script>
+    <script src="{% static 'filer/js/addons/table-dropzone.js' %}"></script>
+    <script src="{% static 'filer/js/addons/toggler.js' %}"></script>
+    <script src="{% static 'filer/js/addons/tooltip.js' %}"></script>
+    <script src="{% static 'filer/js/addons/upload-button.js' %}"></script>
+    <script src="{% static 'filer/js/addons/widget.js' %}"></script>
+
     <!-- ChartJS -->
     <script src="{% static 'admin/plugins/chart.js/Chart.min.js' %}"></script>
     <!-- Sparkline -->
@@ -116,5 +160,6 @@
     <script src="{% static 'admin/dist/js/demo.js' %}"></script>
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="{% static 'admin/dist/js/pages/dashboard.js' %}"></script>
+   
   </body>
 </html>

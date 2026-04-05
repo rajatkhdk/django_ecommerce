@@ -3,7 +3,7 @@ from .models import Product, Category, Review
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'image')
     prepopulated_fields = {"slug": ("name",)}  # auto-generate slug
 
 @admin.register(Product)
