@@ -30,6 +30,9 @@ urlpatterns = [
 
     path('admin/', views.admin_dashboard, name='admin_dashboard'),
 
+    # filemanager urls
+    path('admin/', include('filemanager.urls')),
+
     # Category URLs
     path('admin/categories/', views.category_list, name='category_list'),
     path('admin/categories/add/', views.category_add, name='category_add'),

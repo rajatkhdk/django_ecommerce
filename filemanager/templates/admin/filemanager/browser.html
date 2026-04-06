@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "../base.html" %}
 {% load static %}
 
 {% block title %}File Manager | Django Admin{% endblock %}
@@ -25,11 +25,11 @@
   {% endif %}
 
   <div class="fm-breadcrumb">
-    <a href="{% url 'admin:filemanager_browse' %}">🏠 Root</a>
+    <a href="{% url 'filemanager_browse' %}">🏠 Root</a>
     {% for name, fid in breadcrumbs %}
       <span class="sep">›</span>
       {% if not forloop.last %}
-        <a href="{% url 'admin:filemanager_browse_folder' fid %}">{{ name }}</a>
+        <a href="{% url 'filemanager_browse_folder' fid %}">{{ name }}</a>
       {% else %}
         <span class="current">{{ name }}</span>
       {% endif %}
@@ -40,7 +40,7 @@
     <button class="fm-btn fm-btn-primary" onclick="openFolderModal()">＋ New Folder</button>
     <button class="fm-btn fm-btn-success" onclick="document.getElementById('file-input').click()">⬆ Upload Files</button>
     {% if current_folder %}
-    <form method="post" action="{% url 'admin:filemanager_delete_folder' current_folder.pk %}"
+    <form method="post" action="{% url 'filemanager_delete_folder' current_folder.pk %}"
           style="display:inline;margin:0;" onsubmit="return confirm('Delete this folder and ALL its contents?')">
       {% csrf_token %}
       <button type="submit" class="fm-btn fm-btn-danger">🗑 Delete This Folder</button>
@@ -54,7 +54,7 @@
     <p>or click to browse your computer</p>
   </div>
 
-  <form id="upload-form" method="post" action="{% url 'admin:filemanager_upload_file' %}" enctype="multipart/form-data" style="display:none;">
+  <form id="upload-form" method="post" action="{% url 'filemanager_upload_file' %}" enctype="multipart/form-data" style="display:none;">
     {% csrf_token %}
     <input type="hidden" name="folder_id" value="{{ current_folder.pk|default:'' }}">
     <input type="file" id="file-input" name="files" multiple>
@@ -64,12 +64,12 @@
   {% if subfolders %}
   <div class="fm-grid">
     {% for folder in subfolders %}
-    <div class="fm-item" ondblclick="window.location='{% url "admin:filemanager_browse_folder" folder.pk %}'">
+    <div class="fm-item" ondblclick="window.location='{% url "filemanager_browse_folder" folder.pk %}'">
       <span class="fm-icon icon-folder">📁</span>
       <div class="fm-name">{{ folder.name }}</div>
       <div class="fm-meta">{{ folder.subfolders.count }} folder{{ folder.subfolders.count|pluralize }} · {{ folder.files.count }} file{{ folder.files.count|pluralize }}</div>
       <div class="fm-item-actions">
-        <form method="post" action="{% url 'admin:filemanager_delete_folder' folder.pk %}"
+        <form method="post" action="{% url 'filemanager_delete_folder' folder.pk %}"
               style="margin:0;" onsubmit="return confirmDeleteFolder('{{ folder.name }}')">
           {% csrf_token %}
           <button type="submit" class="fm-del-btn" title="Delete">✕</button>
@@ -98,7 +98,7 @@
       <div class="fm-name">{{ file.name }}</div>
       <div class="fm-meta">{{ file.human_size }}</div>
       <div class="fm-item-actions">
-        <form method="post" action="{% url 'admin:filemanager_delete_file' file.pk %}"
+        <form method="post" action="{% url 'filemanager_delete_file' file.pk %}"
               style="margin:0;" onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
           {% csrf_token %}
           <button type="submit" class="fm-del-btn" title="Delete">✕</button>
@@ -117,7 +117,7 @@
   <div class="fm-modal">
     <button class="fm-modal-close" onclick="closeFolderModal()" type="button">×</button>
     <h3>Create New Folder</h3>
-    <form method="post" action="{% url 'admin:filemanager_create_folder' %}">
+    <form method="post" action="{% url 'filemanager_create_folder' %}">
       {% csrf_token %}
       <input type="hidden" name="parent_id" value="{{ current_folder.pk|default:'' }}">
       <input type="text" name="name" id="folder-name-input" placeholder="Folder name..." required>
