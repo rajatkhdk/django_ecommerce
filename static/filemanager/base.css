@@ -1,0 +1,211 @@
+/* ── Reset Django admin interference ── */
+  #fm-root button,
+  #fm-root input,
+  #fm-root a {
+    box-sizing: border-box;
+  }
+  #fm-root button {
+    font-family: inherit;
+    line-height: normal;
+  }
+
+  #fm-root {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #1a1a2e;
+    padding: 24px;
+    max-width: 1280px;
+  }
+
+  .fm-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .fm-breadcrumb a {
+    color: #417690 !important;
+    text-decoration: none !important;
+    font-weight: 500;
+  }
+  .fm-breadcrumb a:hover { text-decoration: underline !important; }
+  .fm-breadcrumb .sep { color: #aaa; }
+  .fm-breadcrumb .current { color: #555; }
+
+  .fm-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .fm-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.15s;
+    text-decoration: none !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    outline: none;
+  }
+  .fm-btn-primary   { background: #417690 !important; color: #fff !important; }
+  .fm-btn-primary:hover { background: #2e5266 !important; color: #fff !important; }
+  .fm-btn-success   { background: #28a745 !important; color: #fff !important; }
+  .fm-btn-success:hover { background: #1e7e34 !important; }
+  .fm-btn-danger    { background: #dc3545 !important; color: #fff !important; }
+  .fm-btn-danger:hover  { background: #a71d2a !important; }
+  .fm-btn-secondary { background: #f0f0f0 !important; color: #333 !important; border: 1px solid #ccc !important; }
+  .fm-btn-secondary:hover { background: #e2e2e2 !important; }
+
+  .fm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .fm-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.1s;
+    position: relative;
+  }
+  .fm-item:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+  .fm-item .fm-icon { font-size: 40px; margin-bottom: 8px; display: block; line-height: 1; }
+  .fm-item .fm-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+    line-height: 1.3;
+    max-height: 36px;
+    overflow: hidden;
+  }
+  .fm-item .fm-meta { font-size: 11px; color: #999; margin-top: 4px; }
+
+  .fm-item-actions { position: absolute; top: 6px; right: 6px; }
+  .fm-item-actions form { margin: 0; padding: 0; }
+  .fm-del-btn {
+    display: none;
+    background: rgba(220,53,69,0.9) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    padding: 3px 7px !important;
+    cursor: pointer !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+  }
+  .fm-item:hover .fm-del-btn { display: inline-block; }
+  .fm-del-btn:hover { background: #a71d2a !important; }
+
+  .fm-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+  }
+
+  .fm-empty { color: #bbb; font-size: 13px; padding: 12px 0; font-style: italic; }
+
+  #drop-zone {
+    border: 2px dashed #417690;
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    color: #417690;
+    background: #f7fbff;
+    transition: background 0.2s;
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #drop-zone.dragover { background: #dceffe; border-color: #2e5266; }
+  #drop-zone p { margin: 8px 0 0; font-size: 13px; color: #666; }
+  #drop-zone strong { display: block; font-size: 15px; margin-top: 6px; }
+
+  .fm-messages { margin-bottom: 16px; }
+  .fm-message { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+  .fm-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .fm-message.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .fm-message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+  .icon-folder   { color: #f5a623; }
+  .icon-image    { color: #e74c3c; }
+  .icon-document { color: #3498db; }
+  .icon-video    { color: #9b59b6; }
+  .icon-audio    { color: #1abc9c; }
+  .icon-archive  { color: #e67e22; }
+  .icon-other    { color: #95a5a6; }
+
+  /* Modal: visibility+opacity instead of display:none→flex to avoid repaint bug */
+  .fm-modal-backdrop {
+    visibility: hidden;
+    opacity: 0;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s, visibility 0.15s;
+  }
+  .fm-modal-backdrop.open { visibility: visible; opacity: 1; }
+
+  .fm-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    width: 420px;
+    max-width: 95vw;
+    position: relative;
+    border: 1px solid #ddd;
+  }
+  .fm-modal h3 { margin: 0 0 16px; font-size: 16px; font-weight: 600; color: #1a1a2e; }
+  .fm-modal input[type=text] {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+    color: #1a1a2e;
+    background: #fff;
+  }
+  .fm-modal input[type=text]:focus { border-color: #417690 !important; outline: none; }
+  .fm-modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+  .fm-modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none !important; border: none !important;
+    font-size: 20px; cursor: pointer; color: #888;
+    line-height: 1; padding: 0 !important;
+  }
+  .fm-modal-close:hover { color: #333; }
+
+  #preview-modal .fm-modal { width: 520px; }
+  #preview-modal img { max-width: 100%; max-height: 300px; border-radius: 8px; margin-bottom: 12px; display: block; }
+  #preview-modal .fm-preview-meta { font-size: 13px; color: #555; line-height: 1.8; }
+  #preview-modal .fm-preview-meta strong { color: #222; }

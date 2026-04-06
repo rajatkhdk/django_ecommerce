@@ -59,7 +59,7 @@ class File(models.Model):
         null=True,
         blank=True,
         related_name='files',
-        on_delete=models.SET_NULL
+        on_delete=models.CASCADE
     )
     file_type = models.CharField(max_length=20, choices=FILE_TYPE_CHOICES, default='other')
     size = models.PositiveBigIntegerField(default=0)  # bytes
