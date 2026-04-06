@@ -1,0 +1,148 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block title %}File Manager | Django Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link
+      rel="stylesheet"
+      href="{% static 'filemanager/base.css' %}"
+    />
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div id="fm-root">
+  <h2 style="margin-bottom:6px; color:#1a1a2e;">📁 File Manager</h2>
+
+  {% if messages %}
+  <div class="fm-messages">
+    {% for msg in messages %}
+    <div class="fm-message {{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="fm-breadcrumb">
+    <a href="{% url 'filemanager_browse_1' %}">🏠 Root</a>
+    {% for name, fpath in breadcrumbs %}
+      <span class="sep">›</span>
+      {% if not forloop.last %}
+        <a href="{% url 'filemanager_browse_folder_1' fpath %}">{{ name }}</a>
+      {% else %}
+        <span class="current">{{ name }}</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+<div class="fm-toolbar">
+    <button class="fm-btn fm-btn-primary" onclick="openFolderModal()">＋ New Folder</button>
+    <button class="fm-btn fm-btn-success" onclick="document.getElementById('file-input').click()">⬆ Upload Files</button>
+    {% if current_folder %}
+    <form method="post" action="{% url 'filemanager_delete_folder' current_folder.pk %}"
+          style="display:inline;margin:0;" onsubmit="return confirm('Delete this folder and ALL its contents?')">
+      {% csrf_token %}
+      <button type="submit" class="fm-btn fm-btn-danger">🗑 Delete This Folder</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <div style="font-size:36px;line-height:1;">☁️</div>
+    <strong>Drag &amp; drop files here</strong>
+    <p>or click to browse your computer</p>
+  </div>
+
+  <form id="upload-form" method="post" action="{% url 'filemanager_upload_file_fs' %}" enctype="multipart/form-data" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="folder_path" value="{{ current_folder }}">
+    <input type="file" id="file-input" name="files" multiple>
+  </form>
+
+  <div class="fm-section-title">Folders ({{ subfolders|length }})</div>
+  {% if subfolders %}
+  <div class="fm-grid">
+    {% for folder in subfolders %}
+    <div class="fm-item" ondblclick="window.location='{% url "filemanager_browse_folder_1" folder.path %}'">
+      <span class="fm-icon icon-folder">📁</span>
+      <div class="fm-name">{{ folder.name }}</div>
+      <div class="fm-meta">Folder</div>
+      <div class="fm-item-actions">
+        <form method="post" action="{% url 'filemanager_delete_folder_1' folder.path %}"
+              style="margin:0;" onsubmit="return confirmDeleteFolder('{{ folder.name }}')">
+          {% csrf_token %}
+          <button type="submit" class="fm-del-btn" title="Delete">✕</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fm-empty">No subfolders here. Create one with the button above.</p>
+  {% endif %}
+
+  {% comment %} <div class="fm-section-title">Files ({{ files.count }})</div>
+  {% if files %}
+  <div class="fm-grid">
+    {% for file in files %}
+    <div class="fm-item" ondblclick="previewFile('{{ file.pk }}')">
+      <span class="fm-icon icon-{{ file.file_type }}">
+        {% if file.file_type == 'image' %}🖼
+        {% elif file.file_type == 'document' %}📄
+        {% elif file.file_type == 'video' %}🎬
+        {% elif file.file_type == 'audio' %}🎵
+        {% elif file.file_type == 'archive' %}🗜
+        {% else %}📎{% endif %}
+      </span>
+      <div class="fm-name">{{ file.name }}</div>
+      <div class="fm-meta">{{ file.human_size }}</div>
+      <div class="fm-item-actions">
+        <form method="post" action="{% url 'filemanager_delete_file' file.pk %}"
+              style="margin:0;" onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
+          {% csrf_token %}
+          <button type="submit" class="fm-del-btn" title="Delete">✕</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fm-empty">No files in this folder yet. Upload some above.</p>
+  {% endif %} {% endcomment %}
+</div>
+
+{% comment %} <!-- Modals are OUTSIDE #fm-root to avoid any clipping from parent overflow -->
+<div class="fm-modal-backdrop" id="folder-modal">
+  <div class="fm-modal">
+    <button class="fm-modal-close" onclick="closeFolderModal()" type="button">×</button>
+    <h3>Create New Folder</h3>
+    <form method="post" action="{% url 'filemanager_create_folder' %}">
+      {% csrf_token %}
+      <input type="hidden" name="parent_id" value="{{ current_folder.pk|default:'' }}">
+      <input type="text" name="name" id="folder-name-input" placeholder="Folder name..." required>
+      <div class="fm-modal-actions">
+        <button type="button" class="fm-btn fm-btn-secondary" onclick="closeFolderModal()">Cancel</button>
+        <button type="submit" class="fm-btn fm-btn-primary">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="fm-modal-backdrop" id="preview-modal">
+  <div class="fm-modal" style="width:520px;max-width:95vw;">
+    <button class="fm-modal-close" onclick="closePreview()" type="button">×</button>
+    <h3 id="preview-title">File Preview</h3>
+    <div id="preview-content" style="min-height:40px;">Loading...</div>
+    <div class="fm-modal-actions" style="margin-top:20px;">
+      <a id="preview-download" href="#" class="fm-btn fm-btn-primary" target="_blank">⬇ Open / Download</a>
+      <button type="button" class="fm-btn fm-btn-secondary" onclick="closePreview()">Close</button>
+    </div>
+  </div>
+</div> {% endcomment %}
+</div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'filemanager/base.js' %}"></script>
+{% endblock %}

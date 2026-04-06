@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -22,6 +23,8 @@ def file_manager(request, folder_id=None):
 
     subfolders = Folder.objects.filter(parent=current_folder).prefetch_related('files', 'subfolders')
     files = File.objects.filter(folder=current_folder)
+
+    print(f"current_folder: {current_folder}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
 
     return render(request, 'admin/filemanager/browser.html', {
         'current_folder': current_folder,
