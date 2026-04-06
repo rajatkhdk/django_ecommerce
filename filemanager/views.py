@@ -125,5 +125,5 @@ def file_detail_json(request, file_id):
 def redirect_back(request, folder_id=None):
     from django.urls import reverse
     if folder_id:
-        return redirect(reverse('admin:filemanager_browse', args=[folder_id]))
-    return redirect(reverse('admin:filemanager_browse'))
+        return redirect(reverse('filemanager_browse_folder', args=[folder_id]))
+    return redirect(reverse('filemanager_browse'))
