@@ -1,6 +1,4 @@
-{% extends 'admin/base.html' %} 
-{% load static %} 
-{% block content %}
+{% extends 'admin/base.html' %} {% load static %} {% block content %}
 <div class="content-wrapper">
   <div class="content-header">
     <div class="container-fluid">
@@ -41,7 +39,10 @@
         <!-- Available Checkbox -->
         <div class="form-check mb-3">
           {{ form.is_available }}
-          <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+          <label
+            class="form-check-label"
+            for="{{ form.is_available.id_for_label }}"
+          >
             Available
           </label>
         </div>
@@ -49,11 +50,25 @@
         <!-- Image Upload -->
         <div class="form-group">
           <label for="{{ form.image.id_for_label }}">Image</label>
-          {{ form.image }}
+          {{ form.image }} 
+          <buttom type="button" class="btn btn-outline-primary mt-2" onclick="openFileManager()">Browse File</button>
           {% if form.instance.image %}
-            <div class="mt-2">
-              <img src="{{ form.instance.image.url }}" alt="{{ form.instance.name }}" style="height: 100px; width: auto;">
-            </div>
+          <div class="mt-2">
+            <img
+              src="{{ form.instance.image.url }}"
+              alt="{{ form.instance.name }}"
+              style="height: 100px; width: auto"
+            />
+          </div>
+          {% else %}
+          <div class="mt-2">
+            <img
+              id="image_preview"
+              src=""
+              alt=""
+              style="display: none; height: 100px; width: auto"
+            />
+          </div>
           {% endif %}
         </div>
 
@@ -66,9 +81,24 @@
         <!-- Buttons -->
         <button type="submit" class="btn btn-success">Save</button>
         <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancel</a>
-
       </form>
     </div>
   </section>
 </div>
+<script>
+  function openFileManager() {
+    // Open your filemanager URL in a popup or modal
+    window.open('/admin/filemanager/1', 'FileManager', 'width=900,height=600');
+  }
+
+  // This function will be called by your filemanager once a file is selected
+  function setSelectedFile(filePath, fileUrl) {
+    document.getElementById('selected_image_path').value = filePath;
+
+    // Update preview
+    const preview = document.getElementById('image_preview');
+    preview.src = fileUrl;
+    preview.style.display = 'block';
+  }
+</script>
 {% endblock %}

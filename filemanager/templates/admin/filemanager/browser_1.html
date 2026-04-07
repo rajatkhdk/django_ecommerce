@@ -39,7 +39,6 @@
 <div class="fm-toolbar">
     <button class="fm-btn fm-btn-primary" onclick="openFolderModal()">＋ New Folder</button>
     <button class="fm-btn fm-btn-success" onclick="document.getElementById('file-input').click()">⬆ Upload Files</button>
-    {{ current_folder }}
     {% if current_folder %}
     <form method="post" action="{% url 'filemanager_delete_folder_1' current_folder %}"
           style="display:inline;margin:0;" onsubmit="return confirm('Delete this folder and ALL its contents?')">

@@ -35,7 +35,7 @@ function confirmDeleteFolder(name) {
     }
   });
 
-  window.previewFile = function(fileId) {
+  window.previewFile = function(filepath) {
     document.getElementById('preview-modal').classList.add('open');
     document.getElementById('preview-content').innerHTML = 'Loading...';
     document.getElementById('preview-title').textContent = 'Loading...';
@@ -52,7 +52,8 @@ function confirmDeleteFolder(name) {
       if (data.file_type === 'image') html += '<img src="' + data.url + '" alt="' + data.name + '">';
       html += '<div class="fm-preview-meta">'
         + '<div><strong>Type:</strong> ' + data.file_type + '</div>'
-        + '<div><strong>Size:</strong> ' + data.size + '</div>'
+        // + '<div><strong>Size:</strong> ' + data.size + '</div>'
+        + '<div><strong>Size:</strong> ' + data.human_size + '</div>'
         + '<div><strong>Folder:</strong> ' + data.folder + '</div>'
         + '<div><strong>Uploaded:</strong> ' + data.uploaded_at + '</div>'
         + '</div>';

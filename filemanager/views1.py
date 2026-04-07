@@ -206,6 +206,7 @@ def file_detail_json_fs(request, file_path):
         'name': os.path.basename(full_path),
         'file_type': detect_file_type(full_path),
         'size': os.path.getsize(full_path),
+        'human_size': human_readable_size(os.path.getsize(full_path)),
         'uploaded_at': '',  # optional (you can skip or fake)
         'url': settings.MEDIA_URL + 'filemanager/' + file_path,
         'folder': os.path.dirname(file_path) or 'Root',
