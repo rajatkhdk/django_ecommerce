@@ -41,7 +41,9 @@ function confirmDeleteFolder(name) {
     document.getElementById('preview-title').textContent = 'Loading...';
     document.getElementById('preview-download').href = '#';
 
-    fetch('/admin/filemanager/1/file/' + filepath + '/json/', {
+    console.log(filepath)
+
+    fetch('/admin/filemanager/1/file/' + encodeURIComponent(filepath) + '/json/', {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(function(r) { if (!r.ok) throw new Error('err'); return r.json(); })
@@ -63,6 +65,78 @@ function confirmDeleteFolder(name) {
       document.getElementById('preview-content').innerHTML = '<span style="color:#dc3545;">Failed to load file info.</span>';
     });
   };
+
+//   // Check for picker mode via query param
+// function getQueryParam(param) {
+//   const url = new URL(window.location.href);
+//   return url.searchParams.get(param);
+// }
+
+// window.previewFile = function(filepath, isPicker=false) {
+//   // Automatically enable picker if query param exists
+//   const pickerParam = getQueryParam('picker');
+//   if(pickerParam === '1') isPicker = true;
+
+//   document.getElementById('preview-modal').classList.add('open');
+//   document.getElementById('preview-content').innerHTML = 'Loading...';
+//   document.getElementById('preview-title').textContent = 'Loading...';
+
+//   // reset buttons
+//   document.getElementById('preview-open').style.display = 'inline-block';
+//   const selectBtn = document.querySelector('.fm-modal-actions button[onclick="selectFileForForm()"]');
+//   if(selectBtn) selectBtn.style.display = isPicker ? 'inline-block' : 'none';
+
+//   fetch('/admin/filemanager/1/file/' + encodeURIComponent(filepath) + '/json/', {
+//     headers: { 'X-Requested-With': 'XMLHttpRequest' }
+//   })
+//   .then(r => { if(!r.ok) throw new Error('err'); return r.json(); })
+//   .then(data => {
+//     document.getElementById('preview-title').textContent = data.name;
+//     document.getElementById('preview-open').href = data.url;
+
+//     var html = '';
+//     if(data.file_type === 'image') html += '<img src="' + data.url + '" alt="' + data.name + '" style="max-width:100%;">';
+//     html += '<div class="fm-preview-meta">'
+//       + '<div><strong>Type:</strong> ' + data.file_type + '</div>'
+//       + '<div><strong>Size:</strong> ' + data.size + '</div>'
+//       + '<div><strong>Folder:</strong> ' + data.folder + '</div>'
+//       + '<div><strong>Uploaded:</strong> ' + data.uploaded_at + '</div>'
+//       + '</div>';
+//     document.getElementById('preview-content').innerHTML = html;
+
+//     // store URL globally for select
+//     window._previewFileUrl = data.url;
+//   })
+//   .catch(() => {
+//     document.getElementById('preview-content').innerHTML = '<span style="color:#dc3545;">Failed to load file info.</span>';
+//   });
+// };
+
+//   window.selectFileForForm = function() {
+//   const input = window.opener
+//     ? window.opener.document.querySelector('#selected_image_path')
+//     : document.querySelector('#selected_image_path');
+
+//   if(input && window._previewFileUrl) {
+//     input.value = window._previewFileUrl; // set hidden input
+//   }
+
+//   // Update preview in parent window
+//   const preview = window.opener
+//     ? window.opener.document.querySelector('#image_preview')
+//     : document.querySelector('#image_preview');
+
+//   if(preview) {
+//     preview.src = window._previewFileUrl;
+//     preview.style.display = 'block';
+//   }
+
+//   if(window.closePreview) window.closePreview();
+
+//   if(window.opener){
+//     window.close();
+//   }
+// };
 
   window.closePreview = function() { document.getElementById('preview-modal').classList.remove('open'); };
   document.getElementById('preview-modal').addEventListener('click', function(e) {

@@ -51,7 +51,8 @@
         <div class="form-group">
           <label for="{{ form.image.id_for_label }}">Image</label>
           {{ form.image }} 
-          <buttom type="button" class="btn btn-outline-primary mt-2" onclick="openFileManager()">Browse File</button>
+            <input type="hidden" id="selected_image_path" name="image" value="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}">
+          <button type="button" class="btn btn-outline-primary mt-2" onclick="openFileManager()">Browse File</button>
           {% if form.instance.image %}
           <div class="mt-2">
             <img
@@ -88,7 +89,7 @@
 <script>
   function openFileManager() {
     // Open your filemanager URL in a popup or modal
-    window.open('/admin/filemanager/1', 'FileManager', 'width=900,height=600');
+    window.open('/admin/filemanager/1?picker=1', 'FileManager', 'width=900,height=600');
   }
 
   // This function will be called by your filemanager once a file is selected

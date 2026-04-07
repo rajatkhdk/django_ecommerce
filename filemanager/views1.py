@@ -37,7 +37,7 @@ def get_folder_contents(abs_path,folder_path=""):
                 'size': os.path.getsize(full_path),
                 'human_size': human_readable_size(os.path.getsize(full_path)),
                 'file_type': detect_file_type(entry),
-                'path': os.path.relpath(full_path, BASE_DIR),
+                'path': os.path.relpath(full_path, BASE_DIR).replace("\\", "/"),
             })
     return subfolders, files
 
