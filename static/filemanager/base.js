@@ -41,7 +41,7 @@ function confirmDeleteFolder(name) {
     document.getElementById('preview-title').textContent = 'Loading...';
     document.getElementById('preview-download').href = '#';
 
-    fetch('/admin/filemanager/file/' + fileId + '/json/', {
+    fetch('/admin/filemanager/1/file/' + filepath + '/json/', {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(function(r) { if (!r.ok) throw new Error('err'); return r.json(); })
