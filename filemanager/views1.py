@@ -11,6 +11,13 @@ import shutil
 
 BASE_DIR = os.path.join(settings.MEDIA_ROOT, 'filemanager')
 
+def human_readable_size(size):
+    for unit in ['B','KB','MB','GB','TB']:
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} PB"
+
 def get_folder_contents(abs_path,folder_path=""):
     subfolders = []
     files = []
@@ -28,6 +35,7 @@ def get_folder_contents(abs_path,folder_path=""):
             files.append({
                 'name': entry,
                 'size': os.path.getsize(full_path),
+                'human_size': human_readable_size(os.path.getsize(full_path)),
                 'file_type': detect_file_type(entry),
                 'path': os.path.relpath(full_path, BASE_DIR),
             })
@@ -61,6 +69,8 @@ def get_breadcrumbs_from_path(rel_path):
 
 @staff_member_required
 def file_manager1(request, folder_path=""):
+    print("file_manager_1 called")
+
     current_folder = os.path.join(BASE_DIR, folder_path)
 
     if not os.path.exists(current_folder) or not os.path.isdir(current_folder):
@@ -71,7 +81,7 @@ def file_manager1(request, folder_path=""):
     breadcrumbs = get_breadcrumbs_from_path(folder_path)
     subfolders, files = get_folder_contents(current_folder, folder_path)
 
-    print(f"current_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
+    # print(f"current_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
 
     return render(request, 'admin/filemanager/browser_1.html',{
         'current_folder': folder_path,
@@ -86,6 +96,10 @@ def file_manager1(request, folder_path=""):
 @staff_member_required
 @require_POST
 def upload_file_fs(request):
+    print("upload_file_fs called")
+    print("request in upload file : ", request)
+    print("POST data:", request.POST)
+    print("FILES:", request.FILES)
     folder_path = request.POST.get('folder_path','') # relative path
     current_folder = os.path.join(BASE_DIR, folder_path)
     os.makedirs(current_folder, exist_ok=True)
@@ -93,7 +107,7 @@ def upload_file_fs(request):
     uploaded_files = request.FILES.getlist('files')
     if not uploaded_files:
         messages.error(request, 'No files selected.')
-        return redirect('filemanager_browse_folder', folder_path=folder_path)
+        return redirect('filemanager_browse_folder_1', folder_path=folder_path)
     
     for f in uploaded_files:
         file_path = os.path.join(current_folder, f.name)
@@ -102,15 +116,20 @@ def upload_file_fs(request):
                 destination.write(chunk)
 
     messages.success(request, f'{len(uploaded_files)} file(s) uploaded successfully.')
-    return redirect('filemanager_browse_folder', folder_path=folder_path)
+    # return redirect('filemanager_browse_folder_1', folder_path=folder_path)
+    if folder_path:
+        return redirect('filemanager_browse_folder_1', folder_path=folder_path)
+    else:
+        return redirect('filemanager_browse_1')
 
 @staff_member_required
 @require_POST
 def delete_folder_fs(request, folder_path):
+    print("delete_folder_fs called")
     BASE_DIR = os.path.join(settings.MEDIA_ROOT, 'filemanager')
     target_path = os.path.normpath(os.path.join(BASE_DIR, folder_path))
 
-    # 🔒 SECURITY CHECK (VERY IMPORTANT)
+    # SECURITY CHECK (VERY IMPORTANT)
     if not target_path.startswith(BASE_DIR):
         messages.error(request, "Invalid folder path.")
         return redirect('filemanager_browse_1')
@@ -130,19 +149,23 @@ def delete_folder_fs(request, folder_path):
     parent_path = os.path.dirname(folder_path)
 
     # Fix root case
-    if parent_path == "":
-        return redirect('filemanager_browse_1')
+    # if parent_path == "":
+    #     return redirect('filemanager_browse_1')
 
     messages.success(request, f'Folder "{folder_name}" and all its contents deleted.')
-    return redirect('filemanager_browse_folder_1', folder_path=parent_path)
+    if parent_path:
+        return redirect('filemanager_browse_folder_1', folder_path=parent_path)
+    else:
+        return redirect('filemanager_browse_1')
 
 @staff_member_required
 @require_POST
 def delete_file_fs(request, file_path):
+    print("delete_file_fs called")
     base_dir = os.path.join(settings.MEDIA_ROOT, 'filemanager')
     target_path = os.path.normpath(os.path.join(base_dir, file_path))
 
-    # 🔒 SECURITY CHECK
+    # SECURITY CHECK
     if not target_path.startswith(base_dir):
         messages.error(request, "Invalid file path.")
         return redirect('filemanager_browse_1')
@@ -168,6 +191,7 @@ def delete_file_fs(request, file_path):
     
 @staff_member_required
 def file_detail_json_fs(request, file_path):
+    print("file_detail_json_fs called")
     base_dir = os.path.join(settings.MEDIA_ROOT, 'filemanager')
     full_path = os.path.normpath(os.path.join(base_dir, file_path))
 
@@ -192,13 +216,16 @@ def file_detail_json_fs(request, file_path):
 def redirect_back(request, folder_path=None):
     from django.urls import reverse
     if folder_path:
-        return redirect(reverse('filemanager_browser_folder_1', args=[folder_path]))
+        return redirect(reverse('filemanager_browse_folder_1', args=[folder_path]))
     return redirect(reverse('filemanager_browse_1'))
 
-@staff_member_required
+# @staff_member_required
 @require_POST
 def create_folder_fs(request):
+    print("create_folder_fs called")
     base_dir = os.path.join(settings.MEDIA_ROOT, 'filemanager')
+
+    print(f"request : {request}")
 
     name = request.POST.get('name', '').strip()
     folder_path = request.POST.get('folder_path', '').strip()
@@ -212,19 +239,19 @@ def create_folder_fs(request):
     current_path = os.path.normpath(os.path.join(base_dir, folder_path))
     new_folder_path = os.path.join(current_path, name)
 
-    # 🔒 SECURITY CHECK
+    # SECURITY CHECK
     if not current_path.startswith(base_dir):
         messages.error(request, "Invalid path.")
         return redirect('filemanager_browse_1')
 
-    # ❌ Prevent duplicate folder
+    # Prevent duplicate folder
     if os.path.exists(new_folder_path):
         messages.error(request, f'Folder "{name}" already exists.')
     else:
         os.makedirs(new_folder_path)
         messages.success(request, f'Folder "{name}" created.')
 
-    # 🔁 Redirect back
+    # Redirect back
     if folder_path:
         return redirect('filemanager_browse_folder_1', folder_path=folder_path)
     else:

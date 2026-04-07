@@ -39,6 +39,7 @@
 <div class="fm-toolbar">
     <button class="fm-btn fm-btn-primary" onclick="openFolderModal()">＋ New Folder</button>
     <button class="fm-btn fm-btn-success" onclick="document.getElementById('file-input').click()">⬆ Upload Files</button>
+    {{ current_folder }}
     {% if current_folder %}
     <form method="post" action="{% url 'filemanager_delete_folder_1' current_folder %}"
           style="display:inline;margin:0;" onsubmit="return confirm('Delete this folder and ALL its contents?')">
@@ -64,7 +65,7 @@
   {% if subfolders %}
   <div class="fm-grid">
     {% for folder in subfolders %}
-    <div class="fm-item" ondblclick="window.location='{% if folder.path %}{% url "filemanager_browser_folder_1" folder.path %}{% else %}{% url "filemanager_browse_1" %}{% endif %}'">
+    <div class="fm-item" ondblclick="window.location='{% if folder.path %}{% url 'filemanager_browse_folder_1' folder.path %}{% else %}{% url 'filemanager_browse_1' %}{% endif %}'">
       <span class="fm-icon icon-folder">📁</span>
       <div class="fm-name">{{ folder.name }}</div>
       <div class="fm-meta">Folder</div>
@@ -117,7 +118,7 @@
   <div class="fm-modal">
     <button class="fm-modal-close" onclick="closeFolderModal()" type="button">×</button>
     <h3>Create New Folder</h3>
-    <form method="post" action="{% url 'filemanager_create_folder_fs' %}">
+    <form method="POST" action="{% url 'filemanager_create_folder_fs' %}">
       {% csrf_token %}
       <input type="hidden" name="folder_path" value="{{ current_folder }}">
       <input type="text" name="name" id="folder-name-input" placeholder="Folder name..." required>
