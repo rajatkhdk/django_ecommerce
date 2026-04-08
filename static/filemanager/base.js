@@ -35,13 +35,16 @@ function confirmDeleteFolder(name) {
     }
   });
 
+  console.log("Before previewFile definition");
+
   window.previewFile = function(filepath) {
+    console.log("inside previewFile")
     document.getElementById('preview-modal').classList.add('open');
     document.getElementById('preview-content').innerHTML = 'Loading...';
     document.getElementById('preview-title').textContent = 'Loading...';
     document.getElementById('preview-download').href = '#';
 
-    console.log(filepath)
+    // console.log(filepath)
 
     fetch('/admin/filemanager/1/file/' + encodeURIComponent(filepath) + '/json/', {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -65,6 +68,24 @@ function confirmDeleteFolder(name) {
       document.getElementById('preview-content').innerHTML = '<span style="color:#dc3545;">Failed to load file info.</span>';
     });
   };
+
+  console.log("Before selectFile definition");
+
+  window.selectFile = function(filePath) {
+
+    console.log("Inside selectFile", filePath);
+
+    const fullUrl = "/media/filemanager/" + filePath;
+
+    console.log("Inside selectFile",fullUrl)
+
+    if (window.opener && window.opener.setSelectedFile){
+      window.opener.setSelectedFile(filePath, fullUrl);
+      window.close();
+    }else{
+      alert("No parent window found.")
+    }
+    };
 
 //   // Check for picker mode via query param
 // function getQueryParam(param) {

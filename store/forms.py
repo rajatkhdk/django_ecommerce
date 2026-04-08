@@ -3,6 +3,7 @@ from .models import Category, Product, Review
 
 # Form for Category
 class CategoryForm(forms.ModelForm):
+    
     class Meta:
         model = Category
         fields = ['name', 'slug', 'image']

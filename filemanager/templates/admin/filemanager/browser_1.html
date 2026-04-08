@@ -25,11 +25,11 @@
   {% endif %}
 
   <div class="fm-breadcrumb">
-    <a href="{% url 'filemanager_browse_1' %}">🏠 Root</a>
+    <a href="{% url 'filemanager_browse_1' %}{% if picker_mode %}?picker=1{% endif %}">🏠 Root</a>
     {% for name, fpath in breadcrumbs %}
       <span class="sep">›</span>
       {% if not forloop.last %}
-        <a href="{% url 'filemanager_browse_folder_1' fpath %}">{{ name }}</a>
+        <a href="{% url 'filemanager_browse_folder_1' fpath %}{% if picker_mode %}?picker=1{% endif %}">{{ name }}</a>
       {% else %}
         <span class="current">{{ name }}</span>
       {% endif %}
@@ -64,7 +64,13 @@
   {% if subfolders %}
   <div class="fm-grid">
     {% for folder in subfolders %}
-    <div class="fm-item" ondblclick="window.location='{% if folder.path %}{% url 'filemanager_browse_folder_1' folder.path %}{% else %}{% url 'filemanager_browse_1' %}{% endif %}'">
+
+    {% if folder.path %}
+      {% url 'filemanager_browse_folder_1' folder.path as folder_url %}
+    {% else %}
+      {% url 'filemanager_browse_1' as folder_url %}
+    {% endif %}
+    <div class="fm-item" ondblclick="window.location='{{ folder_url }}{% if picker_mode %}?picker=1{% endif %}'">
       <span class="fm-icon icon-folder">📁</span>
       <div class="fm-name">{{ folder.name }}</div>
       <div class="fm-meta">Folder</div>
@@ -86,7 +92,13 @@
   {% if files %}
   <div class="fm-grid">
     {% for file in files %}
-    <div class="fm-item" ondblclick="previewFile('{{ file.path }}')">
+    <div class="fm-item" 
+    {% if picker_mode %}
+      ondblclick="selectFile('{{ file.path }}')"
+    {% else %}
+      ondblclick="previewFile('{{ file.path }}')"
+    {% endif %}
+    >
       <span class="fm-icon icon-{{ file.file_type }}">
         {% if file.file_type == 'image' %}🖼
         {% elif file.file_type == 'document' %}📄
@@ -103,6 +115,11 @@
           {% csrf_token %}
           <button type="submit" class="fm-del-btn" title="Delete">✕</button>
         </form>
+        {% comment %} {% if picker_mode %}
+            <button type="button" onclick="selectFile('{{ file.path }}')">
+                Select
+            </button>
+        {% endif %} {% endcomment %}
       </div>
     </div>
     {% endfor %}
