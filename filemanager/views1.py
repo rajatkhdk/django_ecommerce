@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 import shutil
 
-BASE_DIR = os.path.join(settings.MEDIA_ROOT, 'filemanager')
+BASE_DIR = os.path.join(settings.MEDIA_ROOT, 'filemanager').replace("\\", "/")
 
 def human_readable_size(size):
     for unit in ['B','KB','MB','GB','TB']:
@@ -67,11 +67,61 @@ def get_breadcrumbs_from_path(rel_path):
         crumbs.append((parts[i], crumb_path))
     return crumbs
 
+def list_folder(folder_path, search_query=None):
+    base_path = os.path.join(BASE_DIR, folder_path).replace("\\", "/")
+    # items = os.listdir(base_path)
+
+    folders = []
+    files = []
+
+    for root, dirs, filenames in os.walk(base_path):
+        
+        rel_root = os.path.relpath(root, BASE_DIR).replace("\\", "/")
+
+        if rel_root == ".":
+            rel_root = ""
+
+        for d in dirs:
+            if search_query and search_query.lower() not in d.lower():
+                continue
+
+            full_path = os.path.join(root, d).replace("\\", "/")
+            rel_path = os.path.join(rel_root, d).replace("\\", "/")
+
+            folders.append({
+                'name': d,
+                'path': rel_path,
+                'url': f'media/filemanager/{rel_path}',
+                'created_at': os.path.getctime(full_path)
+            })
+        for f in filenames:
+            if search_query and search_query.lower() not in f.lower():
+                continue
+
+            full_path = os.path.join(root, f).replace("\\", "/")
+            rel_path =  os.path.join(rel_root, f).replace("\\", "/")
+
+            files.append({
+                'name': f,
+                'path': rel_path,
+                'url': f'media/filemanager/{rel_path}',
+                'size': os.path.getsize(full_path),
+                'created_at': os.path.getctime(full_path),
+                'human_size': human_readable_size(os.path.getsize(full_path)),
+                'file_type': detect_file_type(f),
+            })
+
+    
+    print(f"Inside function list_folder: \n Folders: {folders}, \nfiles: {files}, \nsearch_query: {search_query}")
+    return folders, files
+
 @staff_member_required
 def file_manager1(request, folder_path=""):
     print("file_manager_1 called")
 
     picker_mode = request.GET.get('picker', '0') == '1'
+
+    search_query = request.GET.get('q')
 
     current_folder = os.path.join(BASE_DIR, folder_path)
 
@@ -83,7 +133,18 @@ def file_manager1(request, folder_path=""):
     breadcrumbs = get_breadcrumbs_from_path(folder_path)
     subfolders, files = get_folder_contents(current_folder, folder_path)
 
+    if search_query:
+        search_folder, search_files = list_folder(folder_path, search_query)
+
+    else:
+        search_folder, search_files = [],[]
+
     # print(f"current_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
+
+    print(f"Inside filemanager: \nsearch_query: {search_query}")
+    print(f"searxh_folder: {search_folder} and search_files: {search_files}")
+
+    print("Files: ",files)
 
     return render(request, 'admin/filemanager/browser_1.html',{
         'current_folder': folder_path,
@@ -91,6 +152,9 @@ def file_manager1(request, folder_path=""):
         'subfolders': subfolders,
         'files': files,
         'picker_mode': picker_mode,
+        'search_folder': search_folder,
+        'search_files': search_files,
+        'search_query': search_query,
         'title': 'File Manager',
         'has_permission': True,
         'site_header': 'Django Administration',

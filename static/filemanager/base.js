@@ -14,11 +14,15 @@ function confirmDeleteFolder(name) {
     if (e.target === this) closeFolderModal();
   });
 
-  document.getElementById('file-input').addEventListener('change', function() {
+  var fileInput = document.getElementById('file-input');
+  if (fileInput){
+  fileInput.addEventListener('change', function() {
     if (this.files.length > 0) document.getElementById('upload-form').submit();
   });
+}
 
   var zone = document.getElementById('drop-zone');
+  if (zone){
   zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
   zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
   zone.addEventListener('drop', function(e) {
@@ -34,6 +38,7 @@ function confirmDeleteFolder(name) {
       document.getElementById('upload-form').submit();
     }
   });
+}
 
   console.log("Before previewFile definition");
 

@@ -24,6 +24,7 @@
   </div>
   {% endif %}
 
+<div class="fm-header d-flex justify-content-between align-items-center">
   <div class="fm-breadcrumb">
     <a href="{% url 'filemanager_browse_1' %}{% if picker_mode %}?picker=1{% endif %}">🏠 Root</a>
     {% for name, fpath in breadcrumbs %}
@@ -36,6 +37,22 @@
     {% endfor %}
   </div>
 
+   <!-- Search Bar -->
+  <form method="get" class="form-inline">
+    {% if picker_mode %}
+      <input type="hidden" name="picker" value="1">
+    {% endif %}
+    <input
+      class="form-control form-control-sm"
+      type="search"
+      name="q"
+      placeholder="Search in this folder..."
+      value="{{ search_query }}"
+    />
+  </form>
+  </div>
+
+{% if not search_query %}
 <div class="fm-toolbar">
     <button class="fm-btn fm-btn-primary" onclick="openFolderModal()">＋ New Folder</button>
     <button class="fm-btn fm-btn-success" onclick="document.getElementById('file-input').click()">⬆ Upload Files</button>
@@ -53,13 +70,94 @@
     <strong>Drag &amp; drop files here</strong>
     <p>or click to browse your computer</p>
   </div>
+{% endif %}
 
   <form id="upload-form" method="post" action="{% url 'filemanager_upload_file_fs' %}" enctype="multipart/form-data" style="display:none;">
     {% csrf_token %}
     <input type="hidden" name="folder_path" value="{{ current_folder }}">
     <input type="file" id="file-input" name="files" multiple>
   </form>
+  
+{% if search_query %}
 
+  <div class="fm-section-title">
+    🔍 Search Results for "{{ search_query }}"
+  </div>
+
+  <!-- FOLDERS -->
+  <div class="fm-section-title">Folders ({{ search_folder|length }})</div>
+  {% if search_folder %}
+  <div class="fm-grid">
+    {% for folder in search_folder %}
+
+    {% if folder.path %}
+      {% url 'filemanager_browse_folder_1' folder.path as folder_url %}
+    {% else %}
+      {% url 'filemanager_browse_1' as folder_url %}
+    {% endif %}
+    <div class="fm-item" ondblclick="window.location='{{ folder_url }}{% if picker_mode %}?picker=1{% endif %}'">
+      <span class="fm-icon icon-folder">📁</span>
+      <div class="fm-name">{{ folder.name }}</div>
+      <div class="fm-meta">Folder</div>
+      <div class="fm-meta">{{ folder.path }}</div>
+      <div class="fm-item-actions">
+        <form method="post" action="{% url 'filemanager_delete_folder_1' folder.path %}"
+              style="margin:0;" onsubmit="return confirmDeleteFolder('{{ folder.name }}')">
+          {% csrf_token %}
+          <button type="submit" class="fm-del-btn" title="Delete">✕</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fm-empty">No subfolders matching search query.</p>
+  {% endif %}
+
+  <!-- FILES -->
+  <div class="fm-section-title">Files ({{ search_files| length }})</div>
+  {% if search_files %}
+  <div class="fm-grid">
+    {% for file in search_files %}
+    <div class="fm-item" 
+    {% if picker_mode %}
+      ondblclick="selectFile('{{ file.path }}')"
+    {% else %}
+      ondblclick="previewFile('{{ file.path }}')"
+    {% endif %}
+    >
+      <span class="fm-icon icon-{{ file.file_type }}">
+        {% if file.file_type == 'image' %}🖼
+        {% elif file.file_type == 'document' %}📄
+        {% elif file.file_type == 'video' %}🎬
+        {% elif file.file_type == 'audio' %}🎵
+        {% elif file.file_type == 'archive' %}🗜
+        {% else %}📎{% endif %}
+      </span>
+      <div class="fm-name">{{ file.name }}</div>
+      <div class="fm-meta">{{ file.human_size }}</div>
+      <div class="fm-meta">{{ file.path }}</div>
+      <div class="fm-item-actions">
+        <form method="post" action="{% url 'filemanager_delete_file_fs' file.path %}"
+              style="margin:0;" onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
+          {% csrf_token %}
+          <button type="submit" class="fm-del-btn" title="Delete">✕</button>
+        </form>
+        {% comment %} {% if picker_mode %}
+            <button type="button" onclick="selectFile('{{ file.path }}')">
+                Select
+            </button>
+        {% endif %} {% endcomment %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fm-empty">No files matching search query.</p>
+  {% endif %}
+</div>
+
+{% else %}
   <div class="fm-section-title">Folders ({{ subfolders|length }})</div>
   {% if subfolders %}
   <div class="fm-grid">
@@ -128,6 +226,7 @@
   <p class="fm-empty">No files in this folder yet. Upload some above.</p>
   {% endif %}
 </div>
+{% endif %}
 
 <!-- Modals are OUTSIDE #fm-root to avoid any clipping from parent overflow -->
 <div class="fm-modal-backdrop" id="folder-modal">
