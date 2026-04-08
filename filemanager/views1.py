@@ -71,6 +71,8 @@ def get_breadcrumbs_from_path(rel_path):
 def file_manager1(request, folder_path=""):
     print("file_manager_1 called")
 
+    picker_mode = request.GET.get('picker', '0') == '1'
+
     current_folder = os.path.join(BASE_DIR, folder_path)
 
     if not os.path.exists(current_folder) or not os.path.isdir(current_folder):
@@ -88,6 +90,7 @@ def file_manager1(request, folder_path=""):
         'breadcrumbs': breadcrumbs,
         'subfolders': subfolders,
         'files': files,
+        'picker_mode': picker_mode,
         'title': 'File Manager',
         'has_permission': True,
         'site_header': 'Django Administration',
