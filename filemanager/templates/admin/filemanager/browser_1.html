@@ -116,6 +116,10 @@
       <div class="fm-meta">Folder</div>
       <div class="fm-meta">{{ folder.path }}</div>
       <div class="fm-item-actions">
+      <button type="button" class="fm-rename-btn"
+        onclick="openRenameModal('{{ folder.path }}', '{{ folder.name }}')">
+        ✏️
+      </button>
         <form method="post" action="{% url 'filemanager_delete_folder_1' folder.path %}"
               style="margin:0;" onsubmit="return confirmDeleteFolder('{{ folder.name }}')">
           {% csrf_token %}
@@ -153,6 +157,10 @@
       <div class="fm-meta">{{ file.human_size }}</div>
       <div class="fm-meta">{{ file.path }}</div>
       <div class="fm-item-actions">
+      <button type="button" class="fm-rename-btn"
+        onclick="openRenameModal('{{ file.path }}', '{{ file.name }}')">
+        ✏️
+      </button>
         <form method="post" action="{% url 'filemanager_delete_file_fs' file.path %}"
               style="margin:0;" onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
           {% csrf_token %}
@@ -188,6 +196,10 @@
       <div class="fm-name">{{ folder.name }}</div>
       <div class="fm-meta">Folder</div>
       <div class="fm-item-actions">
+      <button type="button" class="fm-rename-btn"
+        onclick="openRenameModal('{{ folder.path }}', '{{ folder.name }}')">
+  ✏️
+</button>
         <form method="post" action="{% url 'filemanager_delete_folder_1' folder.path %}"
               style="margin:0;" onsubmit="return confirmDeleteFolder('{{ folder.name }}')">
           {% csrf_token %}
@@ -223,6 +235,10 @@
       <div class="fm-name">{{ file.name }}</div>
       <div class="fm-meta">{{ file.human_size }}</div>
       <div class="fm-item-actions">
+      <button type="button" class="fm-rename-btn"
+        onclick="openRenameModal('{{ file.path }}', '{{ file.name }}')">
+  ✏️
+</button>
         <form method="post" action="{% url 'filemanager_delete_file_fs' file.path %}"
               style="margin:0;" onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
           {% csrf_token %}
@@ -270,6 +286,25 @@
       {% comment %} <button type="button" class="fm-btn fm-btn-secondary" onclick="selectFileForForm()">Select</button> {% endcomment %}
       <button type="button" class="fm-btn fm-btn-secondary" onclick="closePreview()">Close</button>
     </div>
+  </div>
+</div>
+
+<div class="fm-modal-backdrop" id="rename-modal">
+  <div class="fm-modal">
+    <button class="fm-modal-close" onclick="closeRenameModal()">×</button>
+    <h3>Rename</h3>
+
+    <form method="POST" action="{% url 'filemanager_rename_fs' %}">
+      {% csrf_token %}
+
+      <input type="hidden" name="old_path" id="rename-old-path">
+      <input type="text" name="new_name" id="rename-input" required>
+
+      <div class="fm-modal-actions">
+        <button type="button" class="fm-btn fm-btn-secondary" onclick="closeRenameModal()">Cancel</button>
+        <button type="submit" class="fm-btn fm-btn-primary">Rename</button>
+      </div>
+    </form>
   </div>
 </div>
 </div>

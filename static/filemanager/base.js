@@ -40,7 +40,21 @@ function confirmDeleteFolder(name) {
   });
 }
 
-  console.log("Before previewFile definition");
+  // console.log("Before previewFile definition");
+
+  window.openRenameModal = function(path, name){
+    console.log("Inside openRenameModal")
+    const modal = document.getElementById('rename-modal');
+    modal.classList.add('open');  // show
+    document.getElementById('rename-old-path').value = path;
+    document.getElementById('rename-input').value = name;
+    document.getElementById('rename-input').focus();
+}
+
+  window.closeRenameModal = function() {
+    console.log("Inside CloseRenameModal")
+    document.getElementById('rename-modal').classList.remove('open'); // hide
+}
 
   window.previewFile = function(filepath) {
     console.log("inside previewFile")
@@ -74,7 +88,7 @@ function confirmDeleteFolder(name) {
     });
   };
 
-  console.log("Before selectFile definition");
+  // console.log("Before selectFile definition");
 
   window.selectFile = function(filePath) {
 

@@ -13,9 +13,10 @@ class CategoryForm(forms.ModelForm):
         }
 
 class ProductForm(forms.ModelForm):
+    image = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control-file', 'id': 'file-input'}))
     class Meta:
         model = Product
-        fields = ['name','slug','price','image','description','category','is_available']
+        fields = ['name','slug','price','description','category','is_available', 'image']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Product Name'}),
             'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Slug'}),

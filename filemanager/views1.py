@@ -30,6 +30,7 @@ def get_folder_contents(abs_path,folder_path=""):
             subfolders.append({
                 'name': entry,
                 'path': relative_path,
+                'created_at': os.path.getctime(full_path),
             })
         else:
             files.append({
@@ -38,6 +39,7 @@ def get_folder_contents(abs_path,folder_path=""):
                 'human_size': human_readable_size(os.path.getsize(full_path)),
                 'file_type': detect_file_type(entry),
                 'path': os.path.relpath(full_path, BASE_DIR).replace("\\", "/"),
+                'created_at': os.path.getctime(full_path),
             })
     return subfolders, files
 
@@ -112,11 +114,11 @@ def list_folder(folder_path, search_query=None):
             })
 
     
-    print(f"Inside function list_folder: \n Folders: {folders}, \nfiles: {files}, \nsearch_query: {search_query}")
+    # print(f"Inside function list_folder: \n Folders: {folders}, \nfiles: {files}, \nsearch_query: {search_query}")
     return folders, files
 
 def sort_items(folders, files, sort_by='name', order='asc'):
-    print(f"Inside function sort_items: \n")
+    # print(f"Inside function sort_items: \n")
     reverse = (order == 'desc')
     if sort_by == 'name':
         folders.sort(key=lambda x: x['name'].lower(), reverse=reverse)
@@ -127,7 +129,7 @@ def sort_items(folders, files, sort_by='name', order='asc'):
         folders.sort(key=lambda x: x['created_at'], reverse=reverse)
         files.sort(key=lambda x: x['created_at'], reverse=reverse)
 
-    print(f"Folders: {folders}, \nfiles: {files}, \nsort_by: {sort_by}, \norder: {order}")
+    # print(f"Folders: {folders}, \nfiles: {files}, \nsort_by: {sort_by}, \norder: {order}")
     return folders, files
 
 @staff_member_required
@@ -152,7 +154,7 @@ def file_manager1(request, folder_path=""):
     sort_by = request.GET.get('sort_by', 'name')
     order = request.GET.get('order', 'asc')
 
-    print(f"Sorting by: {sort_by}, order: {order}")
+    # print(f"Sorting by: {sort_by}, order: {order}")
     if search_query:
         search_folder, search_files = list_folder(folder_path, search_query)
         search_folder, search_files = sort_items(search_folder, search_files, sort_by, order)
@@ -166,7 +168,7 @@ def file_manager1(request, folder_path=""):
     # # apply sorting
     # subfolders, files = sort_items(subfolders, files, sort_by, order)
 
-    print(f"Inside file_manager1: \ncurrent_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
+    # print(f"Inside file_manager1: \ncurrent_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
 
     # print(f"current_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
 
@@ -195,9 +197,9 @@ def file_manager1(request, folder_path=""):
 @require_POST
 def upload_file_fs(request):
     print("upload_file_fs called")
-    print("request in upload file : ", request)
-    print("POST data:", request.POST)
-    print("FILES:", request.FILES)
+    # print("request in upload file : ", request)
+    # print("POST data:", request.POST)
+    # print("FILES:", request.FILES)
     folder_path = request.POST.get('folder_path','') # relative path
     current_folder = os.path.join(BASE_DIR, folder_path)
     os.makedirs(current_folder, exist_ok=True)
@@ -219,6 +221,45 @@ def upload_file_fs(request):
         return redirect('filemanager_browse_folder_1', folder_path=folder_path)
     else:
         return redirect('filemanager_browse_1')
+
+@staff_member_required
+@require_POST
+def rename_item_fs(request):
+    old_path = request.POST.get('old_path')
+    new_name = request.POST.get('new_name')
+
+    # print(f"old path: {old_path} \n new_path: {new_name}")
+
+    name, ext = os.path.splitext(old_path)
+
+    if os.path.isfile(old_path) and '.' not in new_name:
+        new_name += ext
+
+    if not old_path or not new_name:
+        messages.error(request, "Invalid rename request.")
+        return redirect(request.META.get('HTTP_REFERER', 'filemanager_browse_1'))
+    
+    # base_dir = os.path.dirname(old_path)
+    # new_path = os.path.join(base_dir, new_name)
+
+    if old_path and new_name:
+        # Make absolute paths
+        abs_old_path = os.path.join(BASE_DIR, old_path)
+        abs_new_path = os.path.join(os.path.dirname(abs_old_path), new_name)
+
+        # print("old_path:", abs_old_path)
+        # print("new_path:", abs_new_path)
+
+    # print(f"old_path: {old_path} \n new_path: {new_path}")
+
+    try:
+        os.rename(abs_old_path, abs_new_path)
+        messages.success(request, f'Renamed to "{new_name}"')
+    except Exception as e:
+        messages.error(request, f'Error renaming: {str(e)}')
+
+    return redirect(request.META.get('HTTP_REFERER', 'filemanager_browse_1'))
+
 
 @staff_member_required
 @require_POST
@@ -324,7 +365,7 @@ def create_folder_fs(request):
     print("create_folder_fs called")
     base_dir = os.path.join(settings.MEDIA_ROOT, 'filemanager')
 
-    print(f"request : {request}")
+    # print(f"request : {request}")
 
     name = request.POST.get('name', '').strip()
     folder_path = request.POST.get('folder_path', '').strip()
