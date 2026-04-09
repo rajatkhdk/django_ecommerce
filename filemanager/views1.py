@@ -115,13 +115,28 @@ def list_folder(folder_path, search_query=None):
     print(f"Inside function list_folder: \n Folders: {folders}, \nfiles: {files}, \nsearch_query: {search_query}")
     return folders, files
 
+def sort_items(folders, files, sort_by='name', order='asc'):
+    print(f"Inside function sort_items: \n")
+    reverse = (order == 'desc')
+    if sort_by == 'name':
+        folders.sort(key=lambda x: x['name'].lower(), reverse=reverse)
+        files.sort(key=lambda x: x['name'].lower(), reverse=reverse)
+    elif sort_by == 'size':
+        files.sort(key=lambda x: x['size'], reverse=reverse)
+    elif sort_by == 'date':
+        folders.sort(key=lambda x: x['created_at'], reverse=reverse)
+        files.sort(key=lambda x: x['created_at'], reverse=reverse)
+
+    print(f"Folders: {folders}, \nfiles: {files}, \nsort_by: {sort_by}, \norder: {order}")
+    return folders, files
+
 @staff_member_required
 def file_manager1(request, folder_path=""):
     print("file_manager_1 called")
 
     picker_mode = request.GET.get('picker', '0') == '1'
 
-    search_query = request.GET.get('q')
+    search_query = request.GET.get('q', '').strip()
 
     current_folder = os.path.join(BASE_DIR, folder_path)
 
@@ -132,19 +147,33 @@ def file_manager1(request, folder_path=""):
 
     breadcrumbs = get_breadcrumbs_from_path(folder_path)
     subfolders, files = get_folder_contents(current_folder, folder_path)
+    
+    # get sorting params
+    sort_by = request.GET.get('sort_by', 'name')
+    order = request.GET.get('order', 'asc')
 
+    print(f"Sorting by: {sort_by}, order: {order}")
     if search_query:
         search_folder, search_files = list_folder(folder_path, search_query)
+        search_folder, search_files = sort_items(search_folder, search_files, sort_by, order)
 
     else:
         search_folder, search_files = [],[]
+        subfolders, files = sort_items(subfolders, files, sort_by, order)
+
+    
+
+    # # apply sorting
+    # subfolders, files = sort_items(subfolders, files, sort_by, order)
+
+    print(f"Inside file_manager1: \ncurrent_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
 
     # print(f"current_folder: {folder_path}, breadcrumbs: {breadcrumbs}, subfolders: {subfolders}, files: {files}, title: 'File Manager', has_permission: True, site_header: 'Django Administration'")
 
-    print(f"Inside filemanager: \nsearch_query: {search_query}")
-    print(f"searxh_folder: {search_folder} and search_files: {search_files}")
+    # print(f"Inside filemanager: \nsearch_query: {search_query}")
+    # print(f"searxh_folder: {search_folder} and search_files: {search_files}")
 
-    print("Files: ",files)
+    # print("Files: ",files)
 
     return render(request, 'admin/filemanager/browser_1.html',{
         'current_folder': folder_path,
@@ -155,6 +184,8 @@ def file_manager1(request, folder_path=""):
         'search_folder': search_folder,
         'search_files': search_files,
         'search_query': search_query,
+        'sort_by': sort_by,
+        'order': order,
         'title': 'File Manager',
         'has_permission': True,
         'site_header': 'Django Administration',
