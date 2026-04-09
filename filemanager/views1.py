@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.views import View
 import shutil
+from PIL import Image
 
 BASE_DIR = os.path.join(settings.MEDIA_ROOT, 'filemanager').replace("\\", "/")
 
@@ -132,6 +133,16 @@ def sort_items(folders, files, sort_by='name', order='asc'):
     # print(f"Folders: {folders}, \nfiles: {files}, \nsort_by: {sort_by}, \norder: {order}")
     return folders, files
 
+# def create_image_thumbnail(file_path, thumb_path, size=(150,150)):
+#     try:
+#         img = Image.open(file_path)
+#         img.thumbnail(size)
+#         img.save(thumb_path)
+#         return thumb_path
+#     except Exception as e:
+#         print("Thumbnail creation failed:",e)
+#         return None
+
 @staff_member_required
 def file_manager1(request, folder_path=""):
     print("file_manager_1 called")
@@ -156,12 +167,9 @@ def file_manager1(request, folder_path=""):
 
     # print(f"Sorting by: {sort_by}, order: {order}")
     if search_query:
-        search_folder, search_files = list_folder(folder_path, search_query)
-        search_folder, search_files = sort_items(search_folder, search_files, sort_by, order)
+        subfolders, files = list_folder(folder_path, search_query)
 
-    else:
-        search_folder, search_files = [],[]
-        subfolders, files = sort_items(subfolders, files, sort_by, order)
+    subfolders, files = sort_items(subfolders, files, sort_by, order)
 
     
 
@@ -183,8 +191,8 @@ def file_manager1(request, folder_path=""):
         'subfolders': subfolders,
         'files': files,
         'picker_mode': picker_mode,
-        'search_folder': search_folder,
-        'search_files': search_files,
+        # 'search_folder': search_folder,
+        # 'search_files': search_files,
         'search_query': search_query,
         'sort_by': sort_by,
         'order': order,

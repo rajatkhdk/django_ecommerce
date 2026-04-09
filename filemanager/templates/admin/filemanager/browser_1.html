@@ -93,7 +93,7 @@
     <input type="file" id="file-input" name="files" multiple>
   </form>
   
-{% if search_query %}
+{% comment %} {% if search_query %}
 
   <div class="fm-section-title">
     🔍 Search Results for "{{ search_query }}"
@@ -165,13 +165,13 @@
               style="margin:0;" onsubmit="return confirm('Delete file \'{{ file.name }}\'?')">
           {% csrf_token %}
           <button type="submit" class="fm-del-btn" title="Delete">✕</button>
-        </form>
+        </form> {% endcomment %}
         {% comment %} {% if picker_mode %}
             <button type="button" onclick="selectFile('{{ file.path }}')">
                 Select
             </button>
         {% endif %} {% endcomment %}
-      </div>
+      {% comment %} </div>
     </div>
     {% endfor %}
   </div>
@@ -180,7 +180,7 @@
   {% endif %}
 </div>
 
-{% else %}
+{% else %} {% endcomment %}
   <div class="fm-section-title">Folders ({{ subfolders|length }})</div>
   {% if subfolders %}
   <div class="fm-grid">
@@ -195,6 +195,9 @@
       <span class="fm-icon icon-folder">📁</span>
       <div class="fm-name">{{ folder.name }}</div>
       <div class="fm-meta">Folder</div>
+      {% if search_query %}
+      <div class="fm-meta">{{ folder.path }}</div>
+      {% endif %}
       <div class="fm-item-actions">
       <button type="button" class="fm-rename-btn"
         onclick="openRenameModal('{{ folder.path }}', '{{ folder.name }}')">
@@ -209,8 +212,11 @@
     </div>
     {% endfor %}
   </div>
+  {% else %}{% if search_query %}
+  <p class="fm-empty">No subfolders matching search query.</p>
   {% else %}
   <p class="fm-empty">No subfolders here. Create one with the button above.</p>
+  {% endif %}
   {% endif %}
 
   <div class="fm-section-title">Files ({{ files| length }})</div>
@@ -234,6 +240,9 @@
       </span>
       <div class="fm-name">{{ file.name }}</div>
       <div class="fm-meta">{{ file.human_size }}</div>
+      {% if search_query %}
+      <div class="fm-meta">{{ file.path }}</div>
+      {% endif %}
       <div class="fm-item-actions">
       <button type="button" class="fm-rename-btn"
         onclick="openRenameModal('{{ file.path }}', '{{ file.name }}')">
@@ -254,10 +263,14 @@
     {% endfor %}
   </div>
   {% else %}
+  {% if search_query %}
+  <p class="fm-empty">No files matching search query.</p>
+  {% else %}
   <p class="fm-empty">No files in this folder yet. Upload some above.</p>
   {% endif %}
+  {% endif %}
 </div>
-{% endif %}
+{% comment %} {% endif %} {% endcomment %}
 
 <!-- Modals are OUTSIDE #fm-root to avoid any clipping from parent overflow -->
 <div class="fm-modal-backdrop" id="folder-modal">

@@ -50,23 +50,49 @@
         <!-- Image Upload -->
         <div class="form-group">
           <label>Product Image</label>
-         <div class="d-flex gap-2 align-items-center">
-         <!-- Hidden file input for local choose -->
-<input type="file" id="file-input" name="image" style="display:none;">
-    <!-- Local Choose -->
-    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('file-input').click()">Choose File</button>
+          <div class="d-flex gap-2 align-items-center">
+            <!-- Hidden file input for local choose -->
+            <input
+              type="file"
+              id="file-input"
+              name="image"
+              style="display: none"
+            />
+            <!-- Local Choose -->
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              onclick="document.getElementById('file-input').click()"
+            >
+              Choose File
+            </button>
 
-    <!-- Browse from File Manager -->
-    <button type="button" class="btn btn-outline-secondary" onclick="openFileManager()">Browse</button>
-    
-    <!-- Hidden input for selected file path from file manager -->
-    <input type="hidden" id="image_path" name="image_path" value="{% if form.instance.image %}{{ form.instance.image.name }}{% endif %}">
-  </div>
-  
-  <!-- Preview -->
-  <img id="image_preview" src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}" 
-       alt="Image Preview" style="margin-top:10px; max-height:150px; display: {% if form.instance.image %}block{% else %}none{% endif %};">
-</div>
+            <!-- Browse from File Manager -->
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              onclick="openFileManager()"
+            >
+              Browse
+            </button>
+
+            <!-- Hidden input for selected file path from file manager -->
+            <input
+              type="hidden"
+              id="image_path"
+              name="image_path"
+              value="{% if form.instance.image %}{{ form.instance.image.name }}{% endif %}"
+            />
+          </div>
+
+          <!-- Preview -->
+          <img
+            id="image_preview"
+            src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}"
+            alt="Image Preview"
+            style="margin-top:10px; max-height:150px; display: {% if form.instance.image %}block{% else %}none{% endif %};"
+          />
+        </div>
 
         <!-- Description -->
         <div class="form-group">
@@ -82,39 +108,41 @@
   </section>
 </div>
 <script>
-function openFileManager() {
+  function openFileManager() {
     window.open(
       "/admin/filemanager/1/folder/products/?picker=1",
       "FileManager",
-      "width=900,height=600"
+      "width=900,height=600",
     );
-}
+  }
 
-// Called by file manager after selecting a file
-function setSelectedFile(filePath, fileUrl) {
-  console.log("Browse selected:", filePath, fileUrl);
+  // Called by file manager after selecting a file
+  function setSelectedFile(filePath, fileUrl) {
+    console.log("Browse selected:", filePath, fileUrl);
     document.getElementById("image_path").value = filePath;
 
     const preview = document.getElementById("image_preview");
     preview.src = fileUrl;
     preview.style.display = "block";
-}
+  }
 
-// Update preview when local file is chosen
-document.getElementById('file-input').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if(file){
+  // Update preview when local file is chosen
+  document
+    .getElementById("file-input")
+    .addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (file) {
         const reader = new FileReader();
-        reader.onload = function(e){
-            const preview = document.getElementById("image_preview");
-            preview.src = e.target.result;
-            preview.style.display = "block";
-        }
+        reader.onload = function (e) {
+          const preview = document.getElementById("image_preview");
+          preview.src = e.target.result;
+          preview.style.display = "block";
+        };
         reader.readAsDataURL(file);
 
         // clear filemanager path
         document.getElementById("image_path").value = "";
-    }
-});
+      }
+    });
 </script>
 {% endblock %}
