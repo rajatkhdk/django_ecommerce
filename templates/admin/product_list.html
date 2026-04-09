@@ -24,6 +24,7 @@
           </tr>
         </thead>
         <tbody>
+        {% if products %}
           {% for product in products %}
           <tr>
             <td>{{ product.id }}</td>
@@ -61,6 +62,7 @@
             <td colspan="6" class="text-center">No products found.</td>
           </tr>
           {% endfor %}
+          {% endif %}
         </tbody>
       </table>
     </div>

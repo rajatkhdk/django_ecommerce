@@ -1,3 +1,5 @@
+import os
+from django.core.files import File
 from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from .models import Product, Category, Review
@@ -83,7 +85,23 @@ def product_list(request):
 def product_add(request):
     form = ProductForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        form.save()
+        product = form.save(commit=False)
+
+        image_path = request.POST.get("image_path")
+
+        # print("Image_path: ",image_path)
+
+        # Case 1: File manager selected
+        if image_path and not request.FILES.get("image"):
+            full_path = os.path.join(settings.MEDIA_ROOT, image_path)
+
+            # print("full_path: ",full_path)
+
+            product.image.name = image_path
+
+        # Case 2: Local file → Django handles automatically
+
+        product.save()
         return redirect('product_list')
     return render(request, 'admin/product_form.html', {'form': form})
 
@@ -91,7 +109,34 @@ def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     if form.is_valid():
-        form.save()
+        product = form.save(commit=False)
+
+        image_path = request.POST.get("image_path")
+
+        # print("Image_path: ",image_path)
+
+        # Case 1: File manager selected
+        if image_path and not request.FILES.get("image"):
+            # media = os.path.join(settings.MEDIA_ROOT, 'filemanager')
+            # full_path = os.path.join(media, image_path)
+
+            # print("full_path: ",full_path)
+
+            # if os.path.exists(full_path):
+            #     with open(full_path, "rb") as f:
+            #         product.image.save(
+            #             os.path.basename(full_path),
+            #             File(f),
+            #             save=False
+            #         )
+
+            full_path = os.path.join('filemanager', image_path)
+
+            product.image.name = full_path
+
+        # Case 2: Local file → Django handles automatically
+
+        product.save()
         return redirect('product_list')
     return render(request, 'admin/product_form.html', {'form': form})
 
