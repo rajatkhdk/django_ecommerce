@@ -6,9 +6,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib import messages
 from django.utils.decorators import method_decorator
-from django.views import View
 import shutil
-from PIL import Image
+from .utils import get_thumbnail_url
 
 BASE_DIR = os.path.join(settings.MEDIA_ROOT, 'filemanager').replace("\\", "/")
 
@@ -25,6 +24,10 @@ def get_folder_contents(abs_path,folder_path=""):
 
     for entry in os.listdir(abs_path):
         full_path = os.path.join(abs_path, entry)
+        # IMPORTANT: skip thumbnails folder (prevents recursion loop)
+        if os.path.isdir(full_path) and entry == "thumbnails":
+            continue
+        
         relative_path = os.path.join(folder_path, entry).replace("\\", "/")
         
         if os.path.isdir(full_path):
@@ -34,13 +37,17 @@ def get_folder_contents(abs_path,folder_path=""):
                 'created_at': os.path.getctime(full_path),
             })
         else:
+            url = settings.MEDIA_URL + 'filemanager/' + relative_path
+            thumbnail = get_thumbnail_url(relative_path)
             files.append({
                 'name': entry,
                 'size': os.path.getsize(full_path),
                 'human_size': human_readable_size(os.path.getsize(full_path)),
                 'file_type': detect_file_type(entry),
-                'path': os.path.relpath(full_path, BASE_DIR).replace("\\", "/"),
+                'path': relative_path,
                 'created_at': os.path.getctime(full_path),
+                'thumbnail': thumbnail,
+                'url': url,
             })
     return subfolders, files
 

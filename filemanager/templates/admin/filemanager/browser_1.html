@@ -231,7 +231,8 @@
     {% endif %}
     >
       <span class="fm-icon icon-{{ file.file_type }}">
-        {% if file.file_type == 'image' %}🖼
+        {% if file.file_type == 'image' %}
+        <img src="{{ file.thumbnail }}" class="fm-thumb">
         {% elif file.file_type == 'document' %}📄
         {% elif file.file_type == 'video' %}🎬
         {% elif file.file_type == 'audio' %}🎵
