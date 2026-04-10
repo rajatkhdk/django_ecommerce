@@ -2,7 +2,7 @@ import os
 from PIL import Image
 from django.conf import settings
 
-IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico', '.bmp', '.jfif']
 
 def is_image(file_name):
     ext = os.path.splitext(file_name)[1].lower()

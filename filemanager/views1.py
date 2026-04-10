@@ -27,7 +27,7 @@ def get_folder_contents(abs_path,folder_path=""):
         # IMPORTANT: skip thumbnails folder (prevents recursion loop)
         if os.path.isdir(full_path) and entry == "thumbnails":
             continue
-        
+
         relative_path = os.path.join(folder_path, entry).replace("\\", "/")
         
         if os.path.isdir(full_path):
@@ -53,7 +53,7 @@ def get_folder_contents(abs_path,folder_path=""):
 
 def detect_file_type(filename):
     ext = os.path.splitext(filename)[1].lower()
-    images = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico', '.bmp'}
+    images = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico', '.bmp', '.jfif'}
     documents = {'.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.csv', '.odt'}
     videos = {'.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv'}
     audio = {'.mp3', '.wav', '.ogg', '.flac', '.aac'}
